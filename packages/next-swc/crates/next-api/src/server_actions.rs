@@ -1,7 +1,4 @@
-use std::{
-    collections::{HashSet, VecDeque},
-    io::Write,
-};
+use std::io::Write;
 
 use anyhow::{bail, Result};
 use indexmap::IndexMap;
@@ -11,13 +8,16 @@ use next_core::{
     util::NextRuntime,
 };
 use next_swc::server_actions::parse_server_actions;
-use turbo_tasks::{Value, ValueToString, Vc};
+use turbo_tasks::{
+    graph::{GraphTraversal, NonDeterministic},
+    TryFlatJoinIterExt, Value, ValueToString, Vc,
+};
 use turbopack_binding::{
     turbo::tasks_fs::{rope::RopeBuilder, File, FileSystemPath},
     turbopack::{
         core::{
             asset::AssetContent, chunk::EvaluatableAsset, context::AssetContext, module::Module,
-            output::OutputAsset, reference::all_referenced_modules, reference_type::ReferenceType,
+            output::OutputAsset, reference::ModuleReference, reference_type::ReferenceType,
             virtual_output::VirtualOutputAsset, virtual_source::VirtualSource,
         },
         ecmascript::{
@@ -172,21 +172,33 @@ async fn build_manifest(
 /// returned along with the module which exports that action.
 #[turbo_tasks::function]
 async fn get_actions(module: Vc<Box<dyn Module>>) -> Result<Vc<ModuleActionMap>> {
-    let mut all_actions = IndexMap::new();
+    let mut all_actions = NonDeterministic::new()
+        .skip_duplicates()
+        .visit([module], get_referenced_modules)
+        .await
+        .completed()?
+        .into_inner()
+        .into_iter()
+        .map(parse_actions_filter_map)
+        .try_flat_join()
+        .await?
+        .into_iter()
+        .collect::<IndexMap<_, _>>();
 
-    let mut queue = VecDeque::from([module]);
-    let mut seen = HashSet::new();
-    while let Some(module) = queue.pop_front() {
-        if let Some(actions) = &*parse_actions(module).await? {
-            all_actions.insert(module, *actions);
-        };
-
-        // TODO: traversal graph
-        let others = all_referenced_modules(module).await?;
-        queue.extend(others.iter().filter(|m| seen.insert(**m)).cloned());
-    }
-
+    all_actions.sort_keys();
     Ok(Vc::cell(all_actions))
+}
+
+async fn get_referenced_modules(
+    parent: Vc<Box<dyn Module>>,
+) -> Result<impl Iterator<Item = Vc<Box<dyn Module>>> + Send> {
+    let parent_references = parent.references().await?;
+    let mut references = Vec::with_capacity(parent_references.len());
+    for reference in &parent_references {
+        let modules = reference.resolve_reference().primary_modules().await?;
+        references.extend(modules.iter().copied());
+    }
+    Ok(references.into_iter())
 }
 
 /// Inspects the comments inside [module] looking for the magic actions comment.
@@ -208,6 +220,18 @@ async fn parse_actions(module: Vc<Box<dyn Module>>) -> Result<Vc<OptionActionMap
 
     let actions = parse_server_actions(&program, comments.clone());
     Ok(Vc::cell(actions.map(Vc::cell)))
+}
+
+/// Converts our cached [parsed_actions] call into a data type suitable for
+/// collecting into a flat-mapped [IndexMap].
+async fn parse_actions_filter_map(
+    module: Vc<Box<dyn Module>>,
+) -> Result<Option<(Vc<Box<dyn Module>>, Vc<ActionMap>)>> {
+    parse_actions(module).await.map(|option_action_map| {
+        option_action_map
+            .clone_value()
+            .map(|action_map| (module, action_map))
+    })
 }
 
 /// A mapping of every module which exports a Server Action, with the hashed id
