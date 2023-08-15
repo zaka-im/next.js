@@ -1,7 +1,10 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use next_swc::server_actions::{server_actions, Config};
-use swc_core::ecma::{ast::Program, visit::VisitMutWith};
+use swc_core::{
+    common::FileName,
+    ecma::{ast::Program, visit::VisitMutWith},
+};
 use turbo_tasks::Vc;
 use turbopack_binding::turbopack::{
     ecmascript::{CustomTransformer, EcmascriptInputTransform, TransformContext},
@@ -31,7 +34,7 @@ struct NextServerActions {
 impl CustomTransformer for NextServerActions {
     async fn transform(&self, program: &mut Program, ctx: &TransformContext<'_>) -> Result<()> {
         let mut actions = server_actions(
-            ctx.swc_file_name,
+            &FileName::Real(ctx.file_path_str.into()),
             Config {
                 is_server: self.is_server,
                 enabled: true,
