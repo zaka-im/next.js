@@ -8,18 +8,14 @@ use next_core::{
     util::NextRuntime,
 };
 use next_swc::server_actions::parse_server_actions;
-use turbo_tasks::{
-    graph::{GraphTraversal, NonDeterministic},
-    TryFlatJoinIterExt, Value, ValueToString, Vc,
-};
+use turbo_tasks::{TryFlatJoinIterExt, Value, ValueToString, Vc};
 use turbopack_binding::{
     turbo::tasks_fs::{rope::RopeBuilder, File, FileSystemPath},
     turbopack::{
         core::{
             asset::AssetContent, chunk::EvaluatableAsset, context::AssetContext, module::Module,
-            output::OutputAsset, reference::primary_referenced_modules,
-            reference_type::ReferenceType, virtual_output::VirtualOutputAsset,
-            virtual_source::VirtualSource,
+            output::OutputAsset, reference::all_modules_iter, reference_type::ReferenceType,
+            virtual_output::VirtualOutputAsset, virtual_source::VirtualSource,
         },
         ecmascript::{
             chunk::{EcmascriptChunkItemExt, EcmascriptChunkPlaceable, EcmascriptChunkingContext},
@@ -173,13 +169,8 @@ async fn build_manifest(
 /// returned along with the module which exports that action.
 #[turbo_tasks::function]
 async fn get_actions(module: Vc<Box<dyn Module>>) -> Result<Vc<ModuleActionMap>> {
-    let mut all_actions = NonDeterministic::new()
-        .skip_duplicates()
-        .visit([module], get_referenced_modules)
-        .await
-        .completed()?
-        .into_inner()
-        .into_iter()
+    let mut all_actions = all_modules_iter([module].into_iter())
+        .await?
         .map(parse_actions_filter_map)
         .try_flat_join()
         .await?
@@ -188,16 +179,6 @@ async fn get_actions(module: Vc<Box<dyn Module>>) -> Result<Vc<ModuleActionMap>>
 
     all_actions.sort_keys();
     Ok(Vc::cell(all_actions))
-}
-
-/// Our graph traversal visitor, which finds the primary modules directly
-/// referenced by [parent].
-async fn get_referenced_modules(
-    parent: Vc<Box<dyn Module>>,
-) -> Result<impl Iterator<Item = Vc<Box<dyn Module>>> + Send> {
-    primary_referenced_modules(parent)
-        .await
-        .map(|modules| modules.clone_value().into_iter())
 }
 
 /// Inspects the comments inside [module] looking for the magic actions comment.
