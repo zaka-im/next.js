@@ -17,8 +17,9 @@ use turbopack_binding::{
     turbopack::{
         core::{
             asset::AssetContent, chunk::EvaluatableAsset, context::AssetContext, module::Module,
-            output::OutputAsset, reference::ModuleReference, reference_type::ReferenceType,
-            virtual_output::VirtualOutputAsset, virtual_source::VirtualSource,
+            output::OutputAsset, reference::primary_referenced_modules,
+            reference_type::ReferenceType, virtual_output::VirtualOutputAsset,
+            virtual_source::VirtualSource,
         },
         ecmascript::{
             chunk::{EcmascriptChunkItemExt, EcmascriptChunkPlaceable, EcmascriptChunkingContext},
@@ -189,16 +190,14 @@ async fn get_actions(module: Vc<Box<dyn Module>>) -> Result<Vc<ModuleActionMap>>
     Ok(Vc::cell(all_actions))
 }
 
+/// Our graph traversal visitor, which finds the primary modules directly
+/// referenced by [parent].
 async fn get_referenced_modules(
     parent: Vc<Box<dyn Module>>,
 ) -> Result<impl Iterator<Item = Vc<Box<dyn Module>>> + Send> {
-    let parent_references = parent.references().await?;
-    let mut references = Vec::with_capacity(parent_references.len());
-    for reference in &parent_references {
-        let modules = reference.resolve_reference().primary_modules().await?;
-        references.extend(modules.iter().copied());
-    }
-    Ok(references.into_iter())
+    primary_referenced_modules(parent)
+        .await
+        .map(|modules| modules.clone_value().into_iter())
 }
 
 /// Inspects the comments inside [module] looking for the magic actions comment.
