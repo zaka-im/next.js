@@ -58,6 +58,8 @@ export default About
 **예시**: 블로그 페이지는 CMS (콘텐츠 관리 시스템)에서 블로그 게시물 목록을 가져와야 할 수 있습니다.
 
 ```jsx
+// TODO: Need to fetch `posts` (by calling some API endpoint)
+//       before this page can be pre-rendered.
 export default function Blog({ posts }) {
   return (
     <ul>

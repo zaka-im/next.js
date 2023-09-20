@@ -9,6 +9,7 @@ description: Incremental Static Regeneration을 사용하여 런타임에 정적
 - [Next.js Commerce](https://nextjs.org/commerce)
 - [GitHub Reactions Demo](https://reactions-demo.vercel.app/)
 - [Static Tweet Demo](https://static-tweet.vercel.app/)
+
 </details>
 
 Next.js를 사용하면 사이트를 빌드한 후에도 정적 페이지를 생성하거나 업데이트할 수 있습니다. Incremental Static Regeneration(ISR)을 사용하면 정적 생성을 페이지별로 사용할 수 있으며, **전체 사이트를 다시 빌드할 필요 없이** 확장성을 높일 수 있습니다.
