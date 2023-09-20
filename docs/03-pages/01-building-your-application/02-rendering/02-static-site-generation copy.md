@@ -58,8 +58,7 @@ export default About
 **예시**: 블로그 페이지는 CMS (콘텐츠 관리 시스템)에서 블로그 게시물 목록을 가져와야 할 수 있습니다.
 
 ```jsx
-// TODO: Need to fetch `posts` (by calling some API endpoint)
-//       before this page can be pre-rendered.
+// TODO: 이 페이지를 사전 렌더링하기 전에 `posts`를 가져와야합니다.
 export default function Blog({ posts }) {
   return (
     <ul>
@@ -75,17 +74,16 @@ export default function Blog({ posts }) {
 
 ```jsx
 export default function Blog({ posts }) {
-  // Render posts...
+  // 포스트 렌더링...
 }
 
-// This function gets called at build time
+// 빌드 시간에 이 함수가 호출됩니다.
 export async function getStaticProps() {
-  // Call an external API endpoint to get posts
+  // 포스트를 가져오기 위해 외부 API 엔드포인트를 호출합니다.
   const res = await fetch('https://.../posts')
   const posts = await res.json()
 
-  // By returning { props: { posts } }, the Blog component
-  // will receive `posts` as a prop at build time
+  // { props: { posts } }를 반환함으로써 Blog 컴포넌트는 빌드 시간에 props로 `posts`를 받게 됩니다.
   return {
     props: {
       posts,
@@ -111,19 +109,19 @@ Next.js는 **동적 경로**를 사용하여 페이지를 만들 수 있습니�
 따라서 사전 렌더링되는 페이지 **경로**는 외부 데이터에 따라 다릅니다. 이를 처리하기 위해 Next.js는 동적 페이지 (`pages/posts/[id].js`의 경우)에서 `async` 함수 인 `getStaticPaths`를 `export` 할 수 있습니다. 이 함수는 빌드 시간에 호출되며 사전 렌더링 할 경로를 지정할 수 있습니다.
 
 ```jsx
-// This function gets called at build time
+// 빌드 시간에 이 함수가 호출됩니다.
 export async function getStaticPaths() {
-  // Call an external API endpoint to get posts
+  // 포스트를 가져오기 위해 외부 API 엔드포인트를 호출합니다.
   const res = await fetch('https://.../posts')
   const posts = await res.json()
 
-  // Get the paths we want to pre-render based on posts
+  // 포스트에 따라 사전 렌더링 할 경로를 가져옵니다.
   const paths = posts.map((post) => ({
     params: { id: post.id },
   }))
 
-  // We'll pre-render only these paths at build time.
-  // { fallback: false } means other routes should 404.
+  // 빌드 시간에 이러한 경로만 사전 렌더링합니다.
+  // { fallback: false }는 다른 경로는 404를 반환해야 함을 의미합니다.
   return { paths, fallback: false }
 }
 ```

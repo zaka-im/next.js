@@ -19,12 +19,11 @@ Next.js는 페이지에 블로킹 데이터 요구 사항이 없는 경우 정�
 
 사전 렌더링 중에 라우터의 `query` 객체는 `query` 정보를 제공할 수 없으므로 비어 있습니다. 하이드레이션 후 Next.js는 애플리케이션을 업데이트하여 `query` 객체에 라우트 매개변수를 제공합니다.
 
-The cases where the query will be updated after hydration triggering another render are:
+다른 렌더링을 트리거하는 하이드레이션 후 쿼리가 업데이트되는 경우는 다음과 같습니다:
 
-- The page is a [dynamic-route](/docs/pages/building-your-application/routing/dynamic-routes).
-- The page has query values in the URL.
-- [Rewrites](/docs/pages/api-reference/next-config-js/rewrites) are configured in your `next.config.js` since these can have parameters that may need to be parsed and provided in the `query`.
-
+- 페이지가 [동적 경로](/docs/pages/building-your-application/routing/dynamic-routes)인 경우.
+- 페이지에 URL에 쿼리 값이 있습니다.
+- [재작성](/docs/pages/api-reference/next-config-js/rewrites)은 `query`에서 구문 분석하여 제공해야 할 수 있는 매개변수가 있을 수 있으므로 `next.config.js`에 구성됩니다.
 쿼리가 완전히 업데이트되고 사용할 준비가 되었는지 구분하려면 [`next/router`](/docs/pages/api-reference/functions/use-router#router-object)의 `isReady` 필드를 활용할 수 있습니다.
 
 > **알아두기**: [`getStaticProps`](/docs/pages/building-your-application/data-fetching/get-static-props)를 사용하는 페이지에 [동적 경로](/docs/pages/building-your-application/routing/dynamic-routes)로 추가된 매개변수는 항상 `query` 객체 내에서 사용할 수 있습니다.
