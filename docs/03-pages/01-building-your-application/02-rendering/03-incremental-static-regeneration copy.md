@@ -93,7 +93,7 @@ export default Blog
 
 ### On-Demand Revalidation 사용하기
 
-먼저, Next.js 앱에서만 알 수 있는 비밀 토큰을 만듭니다. 이 비밀 토큰은 무단 액세스를 방지하기 위해 On-Demand ISR API 라우트에 사용됩니다. 다음 URL 구조로 라우트에 액세스할 수 있습니다(수동으로 또는 웹훅을 사용하여).
+먼저, Next.js 앱에서만 알 수 있는 토큰을 만듭니다. 이 토큰은 무단 액세스를 방지하기 위해 On-Demand ISR API 라우트에 사용됩니다. 다음 URL 구조로 라우트에 액세스할 수 있습니다(수동으로 또는 웹훅을 사용하여).
 
 ```bash filename="Terminal"
 https://<your-site.com>/api/revalidate?secret=<token>
