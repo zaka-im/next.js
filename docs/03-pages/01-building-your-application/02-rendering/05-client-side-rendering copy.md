@@ -70,3 +70,8 @@ export function Page() {
 > **알아두기**:
 >
 > CSR은 SEO에 영향을 줄 수 있습니다. 일부 검색 엔진 크롤러는 JavaScript를 실행하지 않을 수 있으며, 따라서 애플리케이션의 초기 빈 상태 또는 로딩 상태만 볼 수 있습니다. 또한 인터넷 연결이 느린 사용자나 장치의 경우 JavaScript를 모두 로드하고 실행하기 전에 전체 페이지를 볼 수 없으므로 성능 문제가 발생할 수 있습니다. Next.js는 애플리케이션의 각 페이지에 따라 [서버-사이드 렌더링](/docs/pages/building-your-application/rendering/server-side-rendering), [정적 사이트 생성](/docs/pages/building-your-application/rendering/static-site-generation) 및 클라이언트-사이드 렌더링을 조합하여 사용할 수 있는 하이브리드 접근 방식을 제공합니다. 앱 라우터에서는 페이지가 렌더링되는 동안 [로딩 UI와 스트리밍](/docs/app/building-your-application/routing/loading-ui-and-streaming)을 사용하여 로딩 표시기를 표시할 수도 있습니다.
+
+## EXP 대응
+
+1. 정적 사이트 생성이나 서버 사이드 렌더링을 통해서 사전 렌더링된 웹페이지에서 특정한 컴포넌트에서 많이 바뀌는 곳은 CSR이 더 좋다고 생각됩니다.
+2. 칭찬하기와 같은 많은 업데이트가 이뤄지는 곳은 CSR이 적합하다고 생각됩니다.

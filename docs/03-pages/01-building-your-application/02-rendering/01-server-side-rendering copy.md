@@ -31,5 +31,11 @@ export async function getServerSideProps() {
 
 `getServerSideProps`가 어떻게 작동하는지 자세히 알아보려면, [데이터 가져오기 문서](/docs/pages/data-fetching/get-server-side-props)를 확인해주세요.
 
----
+## EXP 대응
+
+1. 현재 pages마다 서버사이드렌더링(`getServerSideProps`)을 사용하고 있습니다.
+2. 하지만 `getServerSideProps`에서 `params`로 들어온 `organizationId`를 단지 페이지 권한체크에만 사용하고, 데이터를 `client-side rendering`(react-query)으로 불러오고 있습니다.
+3. 따라서 현재 서버사이드 렌더링을 하는 이유가 개인적으로 크게 하는 이유가 없다고 생각되어집니다.
+4. organizationId와 관련된 권한체크는 `validate api`가 아닌 데이터를 불러오면서 나온 `Error`를 가지고 `Error Handling`으로 하는게 맞다고 생각됩니다.
+5. 또한 `getSererSideProps`에서 하는 organizationId가 validate한지 여부는 pages router로 가게 된다면 server middleware에서 organization과 관련된 api가 올때마다 해야한다고 생각합니다.
 

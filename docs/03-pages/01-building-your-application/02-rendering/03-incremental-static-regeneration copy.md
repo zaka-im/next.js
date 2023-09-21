@@ -194,3 +194,10 @@ module.exports = {
 | `v12.1.0` | On-Demand ISR이 추가되었습니다(베타).                                                       |
 | `v12.0.0` | [Bot-aware ISR fallback](https://nextjs.org/blog/next-12#bot-aware-isr-fallback)이 추가되었습니다. |
 | `v9.5.0` | Base Path가 추가되었습니다.                                                                 |
+
+## EXP 대응
+
+1. 현재 EXP속에서 context가 수정되어도 빠르게 반영되지않아도 되는 page들이 몇가지 존재한다고 생각합니다.
+2. 이러한 page들은 `ISR`을 이용해서 정적 페이지로 만들 수 있습니다.
+3. 예를 들어 상점페이지의 상품 목록들은 한달 단위로 업데이트되기 때문에 `ISR`을 이용해서 정적 페이지로 만들 수 있습니다.
+4. 그 이외에도 랭킹, 타운홀, 조직도, 퀘스트 등등의 페이지들도 `ISR`을 이용해서 정적 페이지로 만들 수 있습니다.

@@ -62,17 +62,9 @@ Next.js 애플리케이션에서 개별 라우트 세그먼트에 대한 런타�
 export const runtime = 'edge' // 'nodejs' (기본값) | 'edge'
 ```
 
-```jsx filename="app/page.js" switcher
-export const runtime = 'edge' // 'nodejs' (기본값) | 'edge'
-```
-
 모든 세그먼트에 대해 런타임을 정의할 수도 있습니다. 이렇게 하면 레이아웃 수준에서 `runtime`을 정의할 수 있으며, 이는 레이아웃 아래의 모든 라우트가 Edge 런타임에서 실행되도록 합니다.
 
 ```tsx filename="app/layout.tsx" switcher
-export const runtime = 'edge' // 'nodejs' (기본값) | 'edge'
-```
-
-```jsx filename="app/layout.js" switcher
 export const runtime = 'edge' // 'nodejs' (기본값) | 'edge'
 ```
 
@@ -81,3 +73,8 @@ export const runtime = 'edge' // 'nodejs' (기본값) | 'edge'
 </AppOnly>
 
 > 사용 가능한 API의 전체 목록은 [Node.js 문서](https://nodejs.org/docs/latest/api/)와 [Edge 문서](/docs/app/api-reference/edge)를 참조하세요. 배포 인프라에 따라 두 런타임 모두 [스트리밍](/docs/app/building-your-application/routing/loading-ui-and-streaming)을 지원할 수도 있습니다.
+
+## EXP 대응
+
+1. 서버에서 랜더링하기 위해 런타임 선택지가 **edge**와 **nodejs**로 나뉘어져 있습니다.
+2. 코드 크기의 제한이 정해져 있는 edge 런타임의 특성상, 보통 GDS라는 큰 패키지를 사용하는 저희는 **edge 런타임을 사용하기 제한적일 듯**합니다.
